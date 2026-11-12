@@ -1,0 +1,57 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubescale-api
+  labels:
+    app: kubescale-api
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: kubescale-api
+
+  template:
+    metadata:
+      labels:
+        app: kubescale-api
+
+    spec:
+      containers:
+        - name: kubescale-api
+          image: kubescale-api:1.0.0
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 5000
+
+          env:
+            - name: PORT
+              value: "5000"
+
+            - name: APP_VERSION
+              value: "1.0.0"
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "128Mi"
+
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
